@@ -26,11 +26,11 @@ def ask_translation(message):
         key_enru = types.InlineKeyboardButton(text='С английского на русский', callback_data='en-ru')
         keyboard.add(key_enru)
         bot.send_message(message.from_user.id, text='Как будем переводить?', reply_markup=keyboard)
-        bot.register_next_step_handler(message, ask_word)  # следующий шаг – функция ask_word
+        bot.register_next_step_handler(message, prepare_answer)  # следующий шаг – функция ask_word
 
 
 @bot.message_handler(content_types=['text'])
-def ask_word(message):
+def prepare_answer(message):
     global URL
     URL = 'https://{base_url}key={token_ya}&lang={lang}&text={text}'.format(base_url=base_url, token_ya=token_ya, lang=lang, text=message.text.lower())
     # данные, которые мы взяли по ссылке, преобразуем строку в словарь
@@ -41,8 +41,23 @@ def ask_word(message):
     dictionary = list[0]
     # вытягиваем элемент с ключом 'tr', это список из словарей
     translation = dictionary.get('tr')
-    # перебираем список, извлекаем из каждого значение ключа
-    answer = str(', '.join([i.get('text') for i in translation]))
+    answer = ''
+    n = 1
+    # перебираем список словарей, извлекаем из каждого значение ключа 'text'
+    for i in translation:
+        answer += str(n) + '. ' + str.capitalize(i.get('text'))
+        n += 1
+        # если есть элемент с ключом 'syn', то извлекаем синонимы, это список словарей
+        if i.get('syn') is not None:
+            synonyms = i.get('syn')
+            # перебираем список словарей, извлекаем из каждого значение ключа 'text'
+            answer += ', ' + str(', '.join([j.get('text') for j in synonyms])) + '\n'
+        if i.get('mean') is not None:
+            meanings = i.get('mean')
+            # перебираем список словарей, извлекаем из каждого значение ключа 'text'
+            answer += ' (' + str(', '.join([j.get('text') for j in meanings])) + ')\n'
+        else:
+            answer = answer+ '\n'
     bot.send_message(message.from_user.id, answer)
 
 
