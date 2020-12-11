@@ -31,16 +31,38 @@ def ask_translation(message):
 
 @bot.message_handler(content_types=['text'])
 def prepare_answer(message):
-    global URL
     URL = 'https://{base_url}key={token_ya}&lang={lang}&text={text}'.format(base_url=base_url, token_ya=token_ya, lang=lang, text=message.text.lower())
     # данные, которые мы взяли по ссылке, преобразуем строку в словарь
     data = json.loads(requests.get(URL).text)
     # вытягиваем элемент с ключом 'def', это список из 1 элемента
+    global list
     list = data.get('def')
+    # если список пуст, слово не найдено, иначе продолжаем работу со списком
+    if len(list) == 0:
+        bot.send_message(message.from_user.id, text='Я ничего не нашел для тебя :(')
+    else:
+        word_extraction()
+        bot.send_message(message.from_user.id, answer)
+
+
+# обработчик кнопок, где call.data это callback_data, которую мы указали при объявлении кнопки
+@bot.callback_query_handler(func=lambda call: True)
+def callback_worker(call):
+    global lang
+    if call.data == 'ru-en':
+        lang = 'ru-en'
+        bot.send_message(call.message.chat.id, 'Какое слово будем переводить?')
+    elif call.data == 'en-ru':
+        lang = 'en-ru'
+        bot.send_message(call.message.chat.id, 'Какое слово будем переводить?')
+
+
+def word_extraction():
     # вытягиваем единственный элемент, это словарь с ключами 'text', 'pos', 'gen', 'anm', 'tr'
     dictionary = list[0]
     # вытягиваем элемент с ключом 'tr', это список из словарей
     translation = dictionary.get('tr')
+    global answer
     answer = ''
     n = 1
     # перебираем список словарей, извлекаем из каждого значение ключа 'text'
@@ -57,20 +79,7 @@ def prepare_answer(message):
             # перебираем список словарей, извлекаем из каждого значение ключа 'text'
             answer += ' (' + str(', '.join([j.get('text') for j in meanings])) + ')\n'
         else:
-            answer = answer+ '\n'
-    bot.send_message(message.from_user.id, answer)
-
-
-# обработчик кнопок, где call.data это callback_data, которую мы указали при объявлении кнопки
-@bot.callback_query_handler(func=lambda call: True)
-def callback_worker(call):
-    global lang
-    if call.data == 'ru-en':
-        lang = 'ru-en'
-        bot.send_message(call.message.chat.id, 'Какое слово будем переводить?')
-    elif call.data == 'en-ru':
-        lang = 'en-ru'
-        bot.send_message(call.message.chat.id, 'Какое слово будем переводить?')
+            answer = answer + '\n'
 
 
 if __name__ == '__main__':
