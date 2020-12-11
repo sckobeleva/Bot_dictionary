@@ -33,16 +33,21 @@ def ask_translation(message):
 def prepare_answer(message):
     URL = 'https://{base_url}key={token_ya}&lang={lang}&text={text}'.format(base_url=base_url, token_ya=token_ya, lang=lang, text=message.text.lower())
     # данные, которые мы взяли по ссылке, преобразуем строку в словарь
+    global data
     data = json.loads(requests.get(URL).text)
-    # вытягиваем элемент с ключом 'def', это список из 1 элемента
-    global list
-    list = data.get('def')
-    # если список пуст, слово не найдено, иначе продолжаем работу со списком
-    if len(list) == 0:
-        bot.send_message(message.from_user.id, text='Я ничего не нашел для тебя :(')
+    # если код ошибки не пуст, выводим сообщение, иначе продолжаем работу со словарем
+    if data.get('code') is not None:
+        bot.send_message(message.from_user.id, error_code())
     else:
-        word_extraction()
-        bot.send_message(message.from_user.id, answer)
+        # вытягиваем элемент с ключом 'def', это список из 1 элемента
+        global list
+        list = data.get('def')
+        # если список пуст, слово не найдено, иначе продолжаем работу со списком
+        if len(list) == 0:
+            bot.send_message(message.from_user.id, text='Я ничего не нашел для тебя :(')
+        else:
+            word_extraction()
+            bot.send_message(message.from_user.id, answer)
 
 
 # обработчик кнопок, где call.data это callback_data, которую мы указали при объявлении кнопки
@@ -56,7 +61,7 @@ def callback_worker(call):
         lang = 'en-ru'
         bot.send_message(call.message.chat.id, 'Какое слово будем переводить?')
 
-
+# извлекаем слова и формируем в красивый вид
 def word_extraction():
     # вытягиваем единственный элемент, это словарь с ключами 'text', 'pos', 'gen', 'anm', 'tr'
     dictionary = list[0]
@@ -81,6 +86,22 @@ def word_extraction():
         else:
             answer = answer + '\n'
 
+
+# выводим сообщение об ошибке в соответствии с кодом
+def error_code():
+    if data.get('code') == 200:
+        error = 'Операция выполнена успешно, но что-то пошло не так'
+    elif data.get('code') == 401:
+        error = 'Ключ API невалиден'
+    elif data.get('code') == 402:
+        error = 'Ключ API заблокирован'
+    elif data.get('code') == 403:
+        error = 'Превышено суточное ограничение на количество запросов'
+    elif data.get('code') == 413:
+        error = 'Превышен максимальный размер текста'
+    elif data.get('code') == 501:
+        error = 'Заданное направление перевода не поддерживается'
+    return error
 
 if __name__ == '__main__':
     bot.infinity_polling()
