@@ -3,7 +3,7 @@ import json
 import requests
 from telebot import types
 
-token = '1459161586:AAHUgwDTqa-IMm5KJD-Hh3bRm01rJ0TtuPc'
+token = '1466443653:AAGkax4-pi_MQJZhgPObHgyR9C2WcL3KwAo'
 bot = telebot.TeleBot(token)
 token_ya = 'dict.1.1.20201210T104723Z.308567fc9aedf8f7.9a02e5033bb6b2e7b497a2624c7aae86a37a5de5'
 base_url = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup?'
