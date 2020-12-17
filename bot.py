@@ -15,9 +15,9 @@ def start_command(message):
     # здесь обнуляем language, чтобы далее проверить, что пользователь выбрал язык на клавиатуре, а не просто начал ввод
     global language
     language = {}
-    hello_and_help = 'Привет, я переводчик!\n\nЯ умею переводить с русского на иностранный и наоборот.\n\n' \
-                     'У меня есть несколько словарей. Выбери один из них, и я буду использовать его по умолчанию.\n\n' \
-                     'Сменить словарь можно:\n' \
+    hello_and_help = 'Привет, я словарь!\n\nЯ умею переводить с русского на иностранный и наоборот.\n\n' \
+                     'Я знаю несколько языков. Выбери один из них, и я буду использовать его по умолчанию.\n\n' \
+                     'Сменить язык можно:\n' \
                      '- командами /change, /start, /help;\n' \
                      '- промотав переписку до приветственного сообщения;\n' \
                      '- очистив историю в этом чате.'
@@ -27,12 +27,12 @@ def start_command(message):
 
 @bot.message_handler(commands=['help'])
 def help_command(message):
-    help = 'Привет, я переводчик! В своей работе я использую API сервиса Яндекс.Словарь. ' \
+    help = 'Привет, я словарь! В своей работе я использую API сервиса Яндекс.Словарь. ' \
            'Если в результате поиска ты видишь ошибку или неточность перевода, то виноват, скорее всего, не я :) \n\n' \
             'Я умею переводить с русского на иностранный и наоборот. Это значит, что ты можешь писать свой запрос ' \
             'как на русском, так и на выбранном иностранном языке. \n\n' \
-            'У меня есть несколько словарей. Выбери один из них, и я буду использовать его по умолчанию до следующей смены языка.\n\n' \
-            'Сменить словарь можно:\n' \
+            'Я знаю несколько языков. Выбери один из них, и я буду использовать его по умолчанию до следующей смены языка.\n\n' \
+            'Сменить язык можно:\n' \
                 '- командами /change, /start, /help;\n' \
                 '- промотав переписку до приветственного сообщения;\n' \
                 '- очистив историю в этом чате.\n\n' \
@@ -47,7 +47,7 @@ def change_command(message):
     global language
     language = {}
     keyboard = show_keyboard()
-    bot.send_message(message.chat.id, text='Выбери словарь:', reply_markup=keyboard)
+    bot.send_message(message.chat.id, text='Выбери язык:', reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=['text'])
@@ -55,7 +55,7 @@ def prepare_answer(message):
     # если language пуст, значит, пользователь не выбрал язык, просим его об этом
     if len(language) == 0:
         keyboard = show_keyboard()
-        bot.send_message(message.chat.id, text='Сначала выбери словарь:', reply_markup=keyboard)
+        bot.send_message(message.chat.id, text='Сначала выбери язык:', reply_markup=keyboard)
     # иначе продолжаем работу
     else:
         global lang
@@ -91,15 +91,12 @@ def show_keyboard():
     key_en = types.InlineKeyboardButton(text='English', callback_data='English')
     keyboard.add(key_en)
     key_fr = types.InlineKeyboardButton(text='Français', callback_data='Français')
-    #keyboard.add(key_fr)
     key_de = types.InlineKeyboardButton(text='Deutsch', callback_data='Deutsch')
     keyboard.row(key_fr, key_de)
     key_it = types.InlineKeyboardButton(text='Italiano', callback_data='Italiano')
-    #keyboard.add(key_it)
     key_es = types.InlineKeyboardButton(text='Español', callback_data='Español')
     keyboard.row(key_it, key_es)
     key_tr = types.InlineKeyboardButton(text='Türkçe', callback_data='Türkçe')
-    #keyboard.add(key_tr)
     key_pl = types.InlineKeyboardButton(text='Polski', callback_data='Polski')
     keyboard.row(key_tr, key_pl)
     return keyboard
@@ -110,23 +107,23 @@ def show_keyboard():
 def callback_worker(call):
     global language
     if call.data == 'English':
-        language = {'native': 'ru-en', 'foreign': 'en-ru'}
+        language = {'native': 'ru-en', 'foreign': 'en-ru', 'language': 'Русский 🇷🇺 English 🇬🇧:'}
     elif call.data == 'Français':
-        language = {'native': 'ru-fr', 'foreign': 'fr-ru'}
+        language = {'native': 'ru-fr', 'foreign': 'fr-ru', 'language': 'Русский 🇷🇺 Français 🇫🇷:'}
     elif call.data == 'Deutsch':
-        language = {'native': 'ru-de', 'foreign': 'de-ru'}
+        language = {'native': 'ru-de', 'foreign': 'de-ru', 'language': 'Русский 🇷🇺 Deutsch 🇩🇪:'}
     elif call.data == 'Italiano':
-        language = {'native': 'ru-it', 'foreign': 'it-ru'}
+        language = {'native': 'ru-it', 'foreign': 'it-ru', 'language': 'Русский 🇷🇺 Italiano 🇮🇹:'}
     elif call.data == 'Español':
-        language = {'native': 'ru-es', 'foreign': 'es-ru'}
+        language = {'native': 'ru-es', 'foreign': 'es-ru', 'language': 'Русский 🇷🇺 Español 🇪🇸:'}
     elif call.data == 'Türkçe':
-        language = {'native': 'ru-tr', 'foreign': 'tr-ru'}
+        language = {'native': 'ru-tr', 'foreign': 'tr-ru', 'language': 'Русский 🇷🇺 Türkçe 🇹🇷:'}
     elif call.data == 'Polski':
-        language = {'native': 'ru-pl', 'foreign': 'pl-ru'}
+        language = {'native': 'ru-pl', 'foreign': 'pl-ru', 'language': 'Русский 🇷🇺 Polski 🇵🇱:'}
     bot.send_message(call.message.chat.id, 'Какое слово будем переводить?')
 
 
-# определяем, отправленное слово на кириллице или нет
+# определяем, слово на кириллице или нет, используя диапазон таблицы символов Юникода
 def check_cyrillic(word):
     if u'\u0400' <= word <=u'\u04FF':
         return True
@@ -141,7 +138,7 @@ def word_extraction():
     # вытягиваем элемент с ключом 'tr', это список из словарей
     translation = dictionary.get('tr')
     global answer
-    answer = ''
+    answer = language['language'] + '\n'
     n = 1
     # перебираем список словарей, извлекаем из каждого значение ключа 'text'
     for i in translation:
