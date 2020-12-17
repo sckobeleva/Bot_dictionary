@@ -18,7 +18,7 @@ def start_command(message):
     hello_and_help = 'Привет, я словарь!\n\nЯ умею переводить с русского на иностранный и наоборот.\n\n' \
                      'Я знаю несколько языков. Выбери один из них, и я буду использовать его по умолчанию.\n\n' \
                      'Сменить язык можно:\n' \
-                     '- командами /change, /start, /help;\n' \
+                     '- командами /settings, /start, /help;\n' \
                      '- промотав переписку до приветственного сообщения;\n' \
                      '- очистив историю в этом чате.'
     keyboard = show_keyboard()
@@ -33,7 +33,7 @@ def help_command(message):
             'как на русском, так и на выбранном иностранном языке. \n\n' \
             'Я знаю несколько языков. Выбери один из них, и я буду использовать его по умолчанию до следующей смены языка.\n\n' \
             'Сменить язык можно:\n' \
-                '- командами /change, /start, /help;\n' \
+                '- командами /settings, /start, /help;\n' \
                 '- промотав переписку до приветственного сообщения;\n' \
                 '- очистив историю в этом чате.\n\n' \
            'Иногда я могу попросить тебя выбрать язык заново. Значит, в этом появилась техническая необходимость. ' \
@@ -41,8 +41,8 @@ def help_command(message):
     keyboard = show_keyboard()
     bot.send_message(message.chat.id, text=help, reply_markup=keyboard)
 
-@bot.message_handler(commands=['change'])
-def change_command(message):
+@bot.message_handler(commands=['settings'])
+def settings_command(message):
     # здесь обнуляем language, чтобы далее проверить, что пользователь выбрал язык на клавиатуре, а не просто начал ввод
     global language
     language = {}
